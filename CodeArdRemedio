@@ -1,0 +1,126 @@
+#include <Wire.h>
+#include <DS3231.h>
+
+#define PINO_EN1_MOTOR1 8
+#define PINO_EN2_MOTOR1 9
+#define PINO_EN3_MOTOR1 10
+#define PINO_EN4_MOTOR1 11
+
+#define PINO_EN1_MOTOR2 4
+#define PINO_EN2_MOTOR2 5
+#define PINO_EN3_MOTOR2 6
+#define PINO_EN4_MOTOR2 7
+
+DS3231 rtc;
+
+int Passos_Motor1 = 0;
+int Passos_Motor2 = 0;
+int Direcao_Motor1 = 1; 
+int Direcao_Motor2 = 1; 
+int numero_passos_Motor1 = 130.25; 
+int numero_passos_Motor2 = 130.25; 
+
+unsigned long previousMillis_Motor1 = 0;
+unsigned long previousMillis_Motor2 = 0;
+const long intervalo_Motor1 = 5000;  // 5 segundos
+const long intervalo_Motor2 = 10000; // 10 segundos
+
+void setup() {
+  Serial.begin(9600);
+  Wire.begin();
+  
+  pinMode(PINO_EN1_MOTOR1, OUTPUT);
+  pinMode(PINO_EN2_MOTOR1, OUTPUT);
+  pinMode(PINO_EN3_MOTOR1, OUTPUT);
+  pinMode(PINO_EN4_MOTOR1, OUTPUT);
+
+  pinMode(PINO_EN1_MOTOR2, OUTPUT);
+  pinMode(PINO_EN2_MOTOR2, OUTPUT);
+  pinMode(PINO_EN3_MOTOR2, OUTPUT);
+  pinMode(PINO_EN4_MOTOR2, OUTPUT);
+}
+
+void loop() {
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - previousMillis_Motor1 >= intervalo_Motor1) {
+    moverMotor1(numero_passos_Motor1);
+    previousMillis_Motor1 = currentMillis;
+  }
+
+  if (currentMillis - previousMillis_Motor2 >= intervalo_Motor2) {
+    moverMotor2(numero_passos_Motor2);
+    previousMillis_Motor2 = currentMillis;
+  }
+}
+
+void moverMotor1(int numPassos) {
+  for (int x = 0; x < numPassos; x++) {
+    Passos_Motor1++;
+    passoMotor(PINO_EN1_MOTOR1, PINO_EN2_MOTOR1, PINO_EN3_MOTOR1, PINO_EN4_MOTOR1, Passos_Motor1);
+    delayMicroseconds(1000);
+  }
+}
+
+void moverMotor2(int numPassos) {
+  for (int x = 0; x < numPassos; x++) {
+    Passos_Motor2++;
+    passoMotor(PINO_EN1_MOTOR2, PINO_EN2_MOTOR2, PINO_EN3_MOTOR2, PINO_EN4_MOTOR2, Passos_Motor2);
+    delayMicroseconds(1000);
+  }
+}
+
+void passoMotor(int pino1, int pino2, int pino3, int pino4, int passos) {
+  passos %= 8;
+
+  switch (passos) {
+    case 0:
+      digitalWrite(pino1, HIGH);
+      digitalWrite(pino2, LOW);
+      digitalWrite(pino3, LOW);
+      digitalWrite(pino4, LOW);
+      break;
+    case 1:
+      digitalWrite(pino1, HIGH);
+      digitalWrite(pino2, HIGH);
+      digitalWrite(pino3, LOW);
+      digitalWrite(pino4, LOW);
+      break;
+    case 2:
+      digitalWrite(pino1, LOW);
+      digitalWrite(pino2, HIGH);
+      digitalWrite(pino3, LOW);
+      digitalWrite(pino4, LOW);
+      break;
+    case 3:
+      digitalWrite(pino1, LOW);
+      digitalWrite(pino2, HIGH);
+      digitalWrite(pino3, HIGH);
+      digitalWrite(pino4, LOW);
+      break;
+    case 4:
+      digitalWrite(pino1, LOW);
+      digitalWrite(pino2, LOW);
+      digitalWrite(pino3, HIGH);
+      digitalWrite(pino4, LOW);
+      break;
+    case 5:
+      digitalWrite(pino1, LOW);
+      digitalWrite(pino2, LOW);
+      digitalWrite(pino3, HIGH);
+      digitalWrite(pino4, HIGH);
+      break;
+    case 6:
+      digitalWrite(pino1, LOW);
+      digitalWrite(pino2, LOW);
+      digitalWrite(pino3, LOW);
+      digitalWrite(pino4, HIGH);
+      break;
+    case 7:
+      digitalWrite(pino1, HIGH);
+      digitalWrite(pino2, LOW);
+      digitalWrite(pino3, LOW);
+      digitalWrite(pino4, HIGH);
+      break;
+  }
+}
